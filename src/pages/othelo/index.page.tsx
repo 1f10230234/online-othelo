@@ -63,9 +63,9 @@ const Home = () => {
           </h1>
         } */}
         {/* <h1>{`白：` + `${count[0]}` + `個` + ` / ` + `黒：` + `${count[1]}` + `個`}</h1> */}
-        <div className={styles.button} onClick={() => click}>
+        {/* <div className={styles.button} onClick={() => click}>
           <button>リセット</button>
-        </div>
+        </div> */}
       </div>
     </>
   );
