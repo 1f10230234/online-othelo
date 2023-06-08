@@ -42,8 +42,8 @@ const Home = () => {
                     className={styles.ishi}
                     style={{
                       background: masu === 1 ? '#000' : masu === 2 ? '#fff' : '#ff6a00',
-                      width: masu === 3 ? '20%' : '87.5%',
-                      height: masu === 3 ? '20%' : '87.5%',
+                      // width: masu === 3 ? '20%' : '87.5%',
+                      // height: masu === 3 ? '20%' : '87.5%',
                     }}
                   />
                 )}
