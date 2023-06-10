@@ -6,14 +6,15 @@ export type Position = { x: number; y: number };
 const board: BoardArray = [
   [0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 1, 2, 0, 0, 0],
-  [0, 0, 0, 2, 1, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 3, 0, 0, 0],
+  [0, 0, 0, 1, 2, 3, 0, 0],
+  [0, 0, 3, 2, 1, 0, 0, 0],
+  [0, 0, 0, 3, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0],
 ];
 let turn = 1;
+let changeTurn = 2;
 const dir: { y: -1 | 0 | 1; x: -1 | 0 | 1 }[] = [
   { y: -1, x: 1 },
   { y: -1, x: 0 },
@@ -23,115 +24,96 @@ const dir: { y: -1 | 0 | 1; x: -1 | 0 | 1 }[] = [
   { y: 1, x: 0 },
   { y: 1, x: 1 },
   { y: 0, x: 1 },
-];
+]; //いい感じに0か-1を返す関数
+const num0or_1 = (dir: { arr: number[]; y: number; x: number }) =>
+  Math.ceil(Math.max(dir.y + 0.5 * dir.x, 0) / 2 - 1);
+//ANCHOR - changeBoard
+const changeBoard = (y: number, x: number, turnColor: number, type: 0 | 1) => {
+  const dirs1: { arr: number[]; y: number; x: number }[] = dir.map((d) => {
+    const arr1 = board //クリックしたところを起点に長方形にboardを切り取る
+      .map((row) =>
+        row.slice(x + Math.min(0, d.x) * x, x + Math.max(0, d.x) * (board.length - 1 - x) + 1)
+      )
+      .slice(y + Math.min(0, d.y) * y, y + Math.max(0, d.y) * (board.length - 1 - y) + 1);
+    const dxy = d.x * d.y;
+    const length: number =
+      Math.max(arr1.length, arr1[0].length) - Math.abs(arr1.length - arr1[0].length) * dxy ** 2;
+    const arr11 = arr1.map((row) =>
+      row.slice(
+        Math.min(0, Math.min(length, row.length) * d.x),
+        (Math.min(Math.min(length, row.length) * d.x, row.length * d.x) * d.x) ** (d.x ** 2)
+      )
+    );
+    const arr2 = arr11 //切り取ったboardを正方形にする
+      .slice(
+        Math.min(0, Math.min(length, arr1.length) * d.y),
+        (Math.min(Math.min(length, arr1.length) * d.y, arr1.length * d.y) * d.y) ** (d.y ** 2)
+      );
+    const a = Math.abs(Math.min(0, dxy));
+    const arr21 = arr2.flat().filter((n, i) => i % (arr2.length ** (dxy ** 2) + dxy) === 0); //見る方向に即した１次元配列にする
+    const arr3 = arr21.slice(a, arr21.length - a); //左下右上方向の時に余計なものが含まれるため取り除く
+    return { arr: arr3, y: d.y, x: d.x };
+  });
+  const dirs2 = dirs1 //クリックしたマスが空白かどうか
+    .filter((dir) => dir.arr[(dir.arr.length + num0or_1(dir)) % dir.arr.length] === 0);
+  const dirs3 = dirs2 //クリックしたマスからturnColorまでの配列に切り出す
+    .map((dir) => {
+      return {
+        arr: dir.arr.slice(
+          Math.max(
+            1,
+            Math.min(
+              (dir.arr.lastIndexOf(turnColor) + dir.arr.length + 1) % (dir.arr.length + 1),
+              (dir.arr.length + num0or_1(dir)) % dir.arr.length
+            )
+          ),
+          Math.max(
+            1,
+            Math.max(
+              (dir.arr.indexOf(turnColor) + dir.arr.length + 1) % dir.arr.length,
+              (dir.arr.length + num0or_1(dir)) % dir.arr.length
+            )
+          )
+        ),
+        y: dir.y,
+        x: dir.x,
+      };
+    });
+  const dirs4 = dirs3.map((dir) => {
+    return {
+      arr: dir.arr.slice(-num0or_1(dir), dir.arr.length - (num0or_1(dir) + 1)),
+      y: dir.y,
+      x: dir.x,
+    };
+  });
+  const dirs5 = dirs4.filter((dir) => dir.arr.every((n) => n === 3 - turnColor)); //配列の中身がすべて3-turnColorか判断
+  dirs5.forEach((dir) => {
+    dir.arr.forEach((d, n) => {
+      board[y + (n + 1) * dir.y * type][x + (n + 1) * dir.x * type] =
+        turnColor * type - 3 * (type - 1);
+      changeTurn = turnColor * type - (3 - turn) * (type - 1);
+    });
+  });
+  const controlsTurn = Math.abs(Math.abs(turnColor - changeTurn) - 1);
+  board[y][x] += turnColor * controlsTurn;
+};
+//ANCHOR -  boardRepository
 export const boardRepository = {
   getBoard: () => {
     return board;
   },
   clickBoard: (params: Position, userId: UserId): BoardArray => {
     if (turn === userColorRepository.getUserColor(userId)) {
-      let changeTurn = 3 - turn;
-      // console.log('turn', turn);
-      const dirs1: { arr: number[]; y: number; x: number }[] = dir.map((d) => {
-        const arr1 = board
-          .map((row) =>
-            row.slice(
-              params.x + Math.min(0, d.x) * params.x,
-              params.x + Math.max(0, d.x) * (board.length - 1 - params.x) + 1
-            )
-          )
-          .slice(
-            params.y + Math.min(0, d.y) * params.y,
-            params.y + Math.max(0, d.y) * (board.length - 1 - params.y) + 1
-          );
-        const dxy = d.x * d.y;
-        const length: number =
-          Math.max(arr1.length, arr1[0].length) - Math.abs(arr1.length - arr1[0].length) * dxy ** 2;
-        const arr11 = arr1.map((row) =>
-          row.slice(
-            Math.min(0, Math.min(length, row.length) * d.x),
-            (Math.min(Math.min(length, row.length) * d.x, row.length * d.x) * d.x) ** (d.x ** 2)
-          )
-        );
-        const arr2 = arr11.slice(
-          Math.min(0, Math.min(length, arr1.length) * d.y),
-          (Math.min(Math.min(length, arr1.length) * d.y, arr1.length * d.y) * d.y) ** (d.y ** 2)
-        );
-        const a = Math.abs(Math.min(0, dxy));
-        const arr21 = arr2.flat().filter((n, i) => i % (arr2.length ** (dxy ** 2) + dxy) === 0);
-        const arr3 = arr21.slice(a, arr21.length - a);
-        return { arr: arr3, y: d.y, x: d.x };
-      });
-      const dirs2 = dirs1.filter(
-        (dir) =>
-          dir.arr[
-            (dir.arr.length + Math.ceil(Math.max(dir.y + 0.5 * dir.x, 0) / 2 - 1)) % dir.arr.length
-          ] === 0
-      );
-      console.log('dirs2', dirs2);
-      const dirs21 = dirs2.filter(
-        (dir) =>
-          dir.arr[
-            Math.max(
-              Math.max(
-                (dir.arr.length + Math.ceil(Math.max(dir.y + 0.5 * dir.x, 0) / 2 - 1) * 2) %
-                  dir.arr.length,
-                1
-              ),
-              1
-            )
-          ] ===
-          3 - turn
-      );
-      console.log('dirs21', dirs21);
-      const dirs3 = dirs21.map((dir) => {
-        return {
-          arr: dir.arr.slice(
-            Math.max(
-              1,
-              Math.min(
-                (dir.arr.lastIndexOf(turn) + dir.arr.length + 1) % (dir.arr.length + 1),
-                (dir.arr.length + Math.ceil(Math.max(dir.y + 0.5 * dir.x, 0) / 2 - 1)) %
-                  dir.arr.length
-              )
-            ),
-            Math.max(
-              1,
-              Math.max(
-                (dir.arr.indexOf(turn) + dir.arr.length + 1) % dir.arr.length,
-                (dir.arr.length + Math.ceil(Math.max(dir.y + 0.5 * dir.x, 0) / 2 - 1)) %
-                  dir.arr.length
-              )
-            )
-          ),
-          y: dir.y,
-          x: dir.x,
-        };
-      });
-      // console.log('dirs3', dirs3);
-      const dirs4 = dirs3.map((dir) => {
-        return {
-          arr: dir.arr.slice(
-            -Math.ceil(Math.max(dir.y + 0.5 * dir.x, 0) / 2) + 1,
-            dir.arr.length - Math.ceil(Math.max(dir.y + 0.5 * dir.x, 0) / 2)
-          ),
-          y: dir.y,
-          x: dir.x,
-        };
-      });
-      // console.log('dirs4', dirs4);
-      const dirs5 = dirs4.filter((dir) => dir.arr.every((n) => n === 3 - turn));
-      // console.log('dirs5', dirs5);
-      dirs5.forEach((dir) => {
-        dir.arr.forEach((d, n) => {
-          board[params.y + (n + 1) * dir.y][params.x + (n + 1) * dir.x] = turn;
-          changeTurn = turn;
-        });
-      });
-      const controlsTurn = Math.abs(Math.abs(turn - changeTurn) - 1);
-      board[params.y][params.x] += turn * controlsTurn;
+      changeTurn = 3 - turn;
+      board.map((row, y) => row.map((color, x) => (board[y][x] = color % 3)));
+      changeBoard(params.y, params.x, turn, 1);
       turn = 3 - changeTurn;
     }
+    board.forEach((row, y) => {
+      row.forEach((color, x) => {
+        changeBoard(y, x, turn, 0);
+      });
+    });
     return board;
   },
 };
