@@ -143,11 +143,9 @@ export const boardRepository = {
       turn = 3 - changeTurnColor;
     }
     changeBoard3();
-    console.log(turn, pass(board));
-    turn = turn * pass(board) - (3 - turn) * (pass(board) - 1);
+    turn = turn * pass(board) - (3 - turn) * (pass(board) - 1); //pass
     changeBoard3();
-    console.log(turn, pass(board));
-    turn = turn * pass(board) - 3 * (pass(board) - 1);
+    turn = turn * pass(board) - 3 * (pass(board) - 1); //end
     return board;
   },
 };
