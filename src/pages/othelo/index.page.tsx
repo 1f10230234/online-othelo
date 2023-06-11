@@ -7,17 +7,21 @@ import { returnNull } from 'src/utils/returnNull';
 import { userAtom } from '../../atoms/user';
 import styles from './othelo.module.css';
 
+const turns = ['', '黒', '白'];
 const Home = () => {
   const [user] = useAtom(userAtom);
   const [board, setBoard] = useState<number[][]>();
   const [count, setCount] = useState<number[]>();
+  const [turn, setTurn] = useState<number>();
   const fetchBoard = async () => {
     const board = await apiClient.board.$get().catch(returnNull);
     if (board !== null) setBoard(board.board);
   };
-  const fetchCount = async () => {
+  const fetchArounds = async () => {
     const count = await apiClient.board.$get().catch(returnNull);
+    const turn = await apiClient.board.$get().catch(returnNull);
     if (count !== null) setCount(count.count);
+    if (turn !== null) setTurn(turn.turn);
   };
   const clickCell = async (x: number, y: number) => {
     await apiClient.board.$post({ body: { x, y } });
@@ -25,14 +29,14 @@ const Home = () => {
     await fetchBoard();
   };
   useEffect(() => {
-    fetchCount();
+    fetchArounds();
     const cancelId = setInterval(fetchBoard, 500);
     return () => {
       clearInterval(cancelId);
     };
   }, []);
 
-  if (!user || !board || !count) return <Loading visible />;
+  if (!user || !board || !count || !turn) return <Loading visible />;
 
   return (
     <>
@@ -58,6 +62,7 @@ const Home = () => {
               }`}
           </h1>
         } */}
+        <h1>{`${turns[turn]}のターン`}</h1>
         <h1>{`白：${count[0]}個 / 黒：${count[1]}個`}</h1>
         {/* <div className={styles.button} onClick={() => click}>
           <button>リセット</button>
