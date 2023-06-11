@@ -15,6 +15,7 @@ const board: BoardArray = [
 ];
 let turn = 1;
 let changeTurn = 2;
+const count = [2, 2];
 const dir: { y: -1 | 0 | 1; x: -1 | 0 | 1 }[] = [
   { y: -1, x: 1 },
   { y: -1, x: 0 },
@@ -100,7 +101,10 @@ const changeBoard = (y: number, x: number, turnColor: number, type: 0 | 1) => {
 //ANCHOR -  boardRepository
 export const boardRepository = {
   getBoard: () => {
-    return board;
+    count[0] = board.flat().filter((n) => n === 2).length;
+    count[1] = board.flat().filter((n) => n === 1).length;
+
+    return { exBoard: board, exCount: count, exTurn: turn };
   },
   clickBoard: (params: Position, userId: UserId): BoardArray => {
     if (turn === userColorRepository.getUserColor(userId)) {

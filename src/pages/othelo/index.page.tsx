@@ -10,24 +10,29 @@ import styles from './othelo.module.css';
 const Home = () => {
   const [user] = useAtom(userAtom);
   const [board, setBoard] = useState<number[][]>();
+  const [count, setCount] = useState<number[]>();
   const fetchBoard = async () => {
     const board = await apiClient.board.$get().catch(returnNull);
     if (board !== null) setBoard(board.board);
   };
-  const clickMasu = async (x: number, y: number) => {
+  const fetchCount = async () => {
+    const count = await apiClient.board.$get().catch(returnNull);
+    if (count !== null) setCount(count.count);
+  };
+  const clickCell = async (x: number, y: number) => {
     await apiClient.board.$post({ body: { x, y } });
 
     await fetchBoard();
   };
-
   useEffect(() => {
+    fetchCount();
     const cancelId = setInterval(fetchBoard, 500);
     return () => {
       clearInterval(cancelId);
     };
   }, []);
 
-  if (!user || !board) return <Loading visible />;
+  if (!user || !board || !count) return <Loading visible />;
 
   return (
     <>
@@ -35,18 +40,9 @@ const Home = () => {
       <div className={styles.container}>
         <div className={styles.board}>
           {board.map((row: number[], y) =>
-            row.map((masu, x) => (
-              <div className={styles.masu} key={`${x}-${y}`} onClick={() => clickMasu(x, y)}>
-                {masu !== 0 && (
-                  <div
-                    className={styles.ishi}
-                    style={{
-                      background: masu === 1 ? '#000' : masu === 2 ? '#fff' : '#ff6a00',
-                      // width: masu === 3 ? '20%' : '87.5%',
-                      // height: masu === 3 ? '20%' : '87.5%',
-                    }}
-                  />
-                )}
+            row.map((color, x) => (
+              <div className={styles.cell} key={`${x}-${y}`} onClick={() => clickCell(x, y)}>
+                <div className={`${styles.stone} ${styles[`color-${color}`]}`} />
               </div>
             ))
           )}
@@ -62,7 +58,7 @@ const Home = () => {
               }`}
           </h1>
         } */}
-        {/* <h1>{`白：` + `${count[0]}` + `個` + ` / ` + `黒：` + `${count[1]}` + `個`}</h1> */}
+        <h1>{`白：${count[0]}個 / 黒：${count[1]}個`}</h1>
         {/* <div className={styles.button} onClick={() => click}>
           <button>リセット</button>
         </div> */}
