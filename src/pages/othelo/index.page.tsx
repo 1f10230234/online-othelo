@@ -17,7 +17,7 @@ const Home = () => {
     const board = await apiClient.board.$get().catch(returnNull);
     if (board !== null) setBoard(board.board);
   };
-  const fetchArounds = async () => {
+  const fetchAround = async () => {
     const count = await apiClient.board.$get().catch(returnNull);
     const turn = await apiClient.board.$get().catch(returnNull);
     if (count !== null) setCount(count.count);
@@ -29,7 +29,7 @@ const Home = () => {
     await fetchBoard();
   };
   useEffect(() => {
-    fetchArounds();
+    fetchAround();
     const cancelId = setInterval(fetchBoard, 500);
     return () => {
       clearInterval(cancelId);
