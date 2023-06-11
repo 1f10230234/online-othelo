@@ -4,17 +4,35 @@ import { userColorRepository } from './userColorRepository';
 export type BoardArray = number[][];
 export type Position = { x: number; y: number };
 const board: BoardArray = [
-  [0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 3, 0, 0, 0],
-  [0, 0, 0, 1, 2, 3, 0, 0],
-  [0, 0, 3, 2, 1, 0, 0, 0],
-  [0, 0, 0, 3, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0],
+  // [0, 0, 0, 0, 0, 0, 0, 0],
+  // [0, 0, 0, 0, 0, 0, 0, 0],
+  // [0, 0, 0, 0, 3, 0, 0, 0],
+  // [0, 0, 0, 1, 2, 3, 0, 0],
+  // [0, 0, 3, 2, 1, 0, 0, 0],
+  // [0, 0, 0, 3, 0, 0, 0, 0],
+  // [0, 0, 0, 0, 0, 0, 0, 0],
+  // [0, 0, 0, 0, 0, 0, 0, 0],
+  //
+  // [0, 0, 0, 0, 0, 0, 0, 0],
+  // [0, 1, 1, 1, 1, 1, 0, 0],
+  // [0, 1, 2, 2, 2, 1, 0, 0],
+  // [0, 1, 2, 0, 2, 1, 0, 0],
+  // [0, 1, 2, 2, 2, 1, 0, 0],
+  // [0, 1, 1, 1, 1, 1, 0, 0],
+  // [0, 0, 0, 0, 0, 0, 0, 0],
+  // [0, 0, 0, 0, 0, 0, 0, 0],
+  //
+  [1, 1, 1, 1, 1, 1, 1, 0],
+  [1, 2, 2, 2, 2, 2, 1, 0],
+  [1, 2, 2, 2, 2, 2, 1, 0],
+  [1, 2, 2, 0, 2, 2, 1, 0],
+  [1, 2, 2, 2, 2, 2, 1, 0],
+  [1, 2, 2, 2, 2, 2, 1, 0],
+  [1, 1, 1, 1, 1, 1, 1, 0],
   [0, 0, 0, 0, 0, 0, 0, 0],
 ];
 let turn = 1;
-let changeTurn = 2;
+let changeTurnColor = 2;
 const count = [2, 2];
 const dir: { y: -1 | 0 | 1; x: -1 | 0 | 1 }[] = [
   { y: -1, x: 1 },
@@ -27,7 +45,7 @@ const dir: { y: -1 | 0 | 1; x: -1 | 0 | 1 }[] = [
   { y: 0, x: 1 },
 ]; //いい感じに0か-1を返す関数
 const num0or_1 = (dir: { arr: number[]; y: number; x: number }) =>
-  Math.ceil(Math.max(dir.y + 0.5 * dir.x, 0) / 2 - 1);
+  Math.ceil(Math.max(dir.y + 0.5 * dir.x, 0) / 2) - 1;
 //ANCHOR - changeBoard
 const changeBoard = (y: number, x: number, turnColor: number, type: 0 | 1) => {
   const dirs1: { arr: number[]; y: number; x: number }[] = dir.map((d) => {
@@ -50,8 +68,10 @@ const changeBoard = (y: number, x: number, turnColor: number, type: 0 | 1) => {
         Math.min(0, Math.min(length, arr1.length) * d.y),
         (Math.min(Math.min(length, arr1.length) * d.y, arr1.length * d.y) * d.y) ** (d.y ** 2)
       );
-    const a = Math.abs(Math.min(0, dxy));
-    const arr21 = arr2.flat().filter((n, i) => i % (arr2.length ** (dxy ** 2) + dxy) === 0); //見る方向に即した１次元配列にする
+    const arr21 = arr2
+      .flat()
+      .filter((n, i) => i % Math.max(1, arr2.length ** (dxy ** 2) + dxy) === 0); //見る方向に即した１次元配列にする
+    const a = Math.min(Math.abs(Math.min(0, dxy)), arr21.length - 1);
     const arr3 = arr21.slice(a, arr21.length - a); //左下右上方向の時に余計なものが含まれるため取り除く
     return { arr: arr3, y: d.y, x: d.x };
   });
@@ -62,16 +82,16 @@ const changeBoard = (y: number, x: number, turnColor: number, type: 0 | 1) => {
       return {
         arr: dir.arr.slice(
           Math.max(
-            1,
+            num0or_1(dir) + 1,
             Math.min(
-              (dir.arr.lastIndexOf(turnColor) + dir.arr.length + 1) % (dir.arr.length + 1),
+              (dir.arr.lastIndexOf(turnColor) + dir.arr.length) % dir.arr.length,
               (dir.arr.length + num0or_1(dir)) % dir.arr.length
             )
           ),
           Math.max(
-            1,
+            num0or_1(dir) + 1,
             Math.max(
-              (dir.arr.indexOf(turnColor) + dir.arr.length + 1) % dir.arr.length,
+              dir.arr.indexOf(turnColor) + 1,
               (dir.arr.length + num0or_1(dir)) % dir.arr.length
             )
           )
@@ -92,12 +112,21 @@ const changeBoard = (y: number, x: number, turnColor: number, type: 0 | 1) => {
     dir.arr.forEach((d, n) => {
       board[y + (n + 1) * dir.y * type][x + (n + 1) * dir.x * type] =
         turnColor * type - 3 * (type - 1);
-      changeTurn = turnColor * type - (3 - turn) * (type - 1);
+      changeTurnColor = turnColor * type - (3 - turn) * (type - 1);
     });
   });
-  const controlsTurn = Math.abs(Math.abs(turnColor - changeTurn) - 1);
-  board[y][x] += turnColor * controlsTurn;
+  const controlsTurn = Math.abs(Math.abs(turnColor - changeTurnColor) - 1);
+  board[y][x] += turnColor * controlsTurn * type;
 };
+//ANCHOR - changeBoard3
+const changeBoard3 = () => {
+  board.forEach((row, y) => {
+    row.forEach((color, x) => {
+      changeBoard(y, x, turn, 0);
+    });
+  });
+};
+const pass = (board: number[][]) => Math.min(1, board.flat().filter((n) => n === 3).length); //pass=>0
 //ANCHOR -  boardRepository
 export const boardRepository = {
   getBoard: () => {
@@ -108,16 +137,17 @@ export const boardRepository = {
   },
   clickBoard: (params: Position, userId: UserId): BoardArray => {
     if (turn === userColorRepository.getUserColor(userId)) {
-      changeTurn = 3 - turn;
+      changeTurnColor = 3 - turn;
       board.map((row, y) => row.map((color, x) => (board[y][x] = color % 3)));
       changeBoard(params.y, params.x, turn, 1);
-      turn = 3 - changeTurn;
+      turn = 3 - changeTurnColor;
     }
-    board.forEach((row, y) => {
-      row.forEach((color, x) => {
-        changeBoard(y, x, turn, 0);
-      });
-    });
+    changeBoard3();
+    console.log(turn, pass(board));
+    turn = turn * pass(board) - (3 - turn) * (pass(board) - 1);
+    changeBoard3();
+    console.log(turn, pass(board));
+    turn = turn * pass(board) - 3 * (pass(board) - 1);
     return board;
   },
 };
