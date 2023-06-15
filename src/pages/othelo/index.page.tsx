@@ -42,7 +42,7 @@ const Home = () => {
       clearInterval(cancelId);
     };
   }, []);
-  
+
   // useEffect(() => {
   //   const cancelId = setInterval(fetchArounds, 500);
   //   return () => {

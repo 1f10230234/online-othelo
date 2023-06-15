@@ -155,6 +155,7 @@ export const boardUseCase = {
       changeBoard(params.y, params.x, turn, 1, board);
       turn = 3 - changeTurnColor;
     }
+    //test
     changeBoard3(board);
     turn = turn * pass(board) - (3 - turn) * (pass(board) - 1); //pass
     passCount = -(passCount + 1) * (pass(board) - 1);
