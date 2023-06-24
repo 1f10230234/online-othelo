@@ -1,5 +1,5 @@
 import type { RoomModel } from '$/commonTypesWithClient/models';
-import type { Position } from '$/usecase/board';
+import type { Position } from '$/usecase/boardUsecase';
 
 export type Methods = {
   post: {

@@ -1,5 +1,5 @@
 import type { UserId } from '$/commonTypesWithClient/branded';
-import { userColorUseCase } from './userColor';
+import { userColorUseCase } from './userColorUsecase';
 
 export type BoardArray = number[][];
 export type Position = { x: number; y: number };
@@ -161,7 +161,6 @@ export const boardUseCase = {
     passCount = -(passCount + 1) * (pass(board) - 1);
     changeBoard3(board);
     turn = turn * pass(board) - 3 * (pass(board) - 1); //end
-    console.log(turn);
     return board;
   },
 };

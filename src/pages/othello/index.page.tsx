@@ -5,7 +5,7 @@ import { BasicHeader } from 'src/pages/@components/BasicHeader/BasicHeader';
 import { apiClient } from 'src/utils/apiClient';
 import { returnNull } from 'src/utils/returnNull';
 import { userAtom } from '../../atoms/user';
-import styles from './othelo.module.css';
+import styles from './othello.module.css';
 
 // const turns = ['', '黒のターン', '白のターン', 'ゲーム終了'];
 const Home = () => {
@@ -31,8 +31,8 @@ const Home = () => {
     // if (passCount !== null) setPassCount(passCount.passCount);
   };
   const clickCell = async (x: number, y: number) => {
+    console.log(apiClient);
     await apiClient.rooms.board.$post({ body: { x, y } });
-
     await fetchBoard();
   };
 

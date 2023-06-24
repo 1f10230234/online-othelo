@@ -4,12 +4,12 @@ import { roomsRepository } from '$/repository/roomsRepository';
 import { roomIdParser } from '$/service/idParsers';
 import assert from 'assert';
 import { randomUUID } from 'crypto';
-import { boardUseCase } from './board';
+import { boardUseCase } from './boardUsecase';
 
 const initBoard = () => [
   [0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 3, 0, 0, 0, 0],
+  [0, 0, 0, 0, 3, 0, 0, 0],
   [0, 0, 0, 1, 2, 3, 0, 0],
   [0, 0, 3, 2, 1, 0, 0, 0],
   [0, 0, 0, 3, 0, 0, 0, 0],
@@ -37,7 +37,7 @@ export const roomUsecase = {
 
     const newBoard = boardUseCase.clickBoard({ x, y }, userId, latest.board);
 
-    const newRoom: RoomModel = { ...latest, board: newBoard };
+    const newRoom: RoomModel = { ...latest, status: 'playing', board: newBoard };
 
     await roomsRepository.save(newRoom);
 
