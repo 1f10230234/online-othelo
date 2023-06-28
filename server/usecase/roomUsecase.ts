@@ -30,6 +30,15 @@ export const roomUsecase = {
 
     return newRoom;
   },
+  getAround: async (): Promise<{ exCount: number[]; exTurn: number; exPassCount: number }> => {
+    const latest = await roomsRepository.findLatest();
+
+    assert(latest, 'クリックできてるからRoomがないわけない');
+
+    const newBoard = boardUseCase.getAround(latest.board);
+
+    return newBoard;
+  },
   clickBoard: async (x: number, y: number, userId: UserId): Promise<RoomModel> => {
     const latest = await roomsRepository.findLatest();
 

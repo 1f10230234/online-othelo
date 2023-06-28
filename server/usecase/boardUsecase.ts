@@ -140,12 +140,12 @@ const changeBoard3 = (board: BoardArray) => {
 const pass = (board: number[][]) => Math.min(1, board.flat().filter((n) => n === 3).length); //pass=>0
 //ANCHOR -  boardRepository
 export const boardUseCase = {
-  getBoard: (board: BoardArray) => {
+  getAround: (board: BoardArray): { exCount: number[]; exTurn: number; exPassCount: number } => {
     //ANCHOR - getBoard
     count[0] = board.flat().filter((n) => n === 2).length;
     count[1] = board.flat().filter((n) => n === 1).length;
 
-    return { exBoard: board, exCount: count, exTurn: turn, exPassCount: passCount };
+    return { exCount: count, exTurn: turn, exPassCount: passCount };
   },
   clickBoard: (params: Position, userId: UserId, board: BoardArray): BoardArray => {
     //ANCHOR - clickBoard
