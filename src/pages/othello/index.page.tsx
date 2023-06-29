@@ -41,7 +41,7 @@ const Home = () => {
   const fetchBoard = async () => {
     const res1 = await apiClient.rooms.$get().catch(returnNull);
     if (res1 === null) {
-      const newRoom = await apiClient.rooms.$post();//最初の一回
+      const newRoom = await apiClient.rooms.$post(); //最初の一回
       setBoard(newRoom.board);
     } else {
       assert(res1.board);
