@@ -22,6 +22,8 @@ export const roomUsecase = {
     const newRoom: RoomModel = {
       id: roomIdParser.parse(randomUUID()),
       board: initBoard(),
+      turn: 1,
+      passCount: 0,
       status: 'waiting',
       created: Date.now(),
     };
@@ -30,23 +32,36 @@ export const roomUsecase = {
 
     return newRoom;
   },
-  getAround: async (): Promise<{ exCount: number[]; exTurn: number; exPassCount: number }> => {
+  getCount: async (): Promise<number[]> => {
     const latest = await roomsRepository.findLatest();
 
     assert(latest, 'クリックできてるからRoomがないわけない');
 
-    const newBoard = boardUseCase.getAround(latest.board);
+    const newCount = boardUseCase.getCount(latest.board);
 
-    return newBoard;
+    return newCount;
   },
   clickBoard: async (x: number, y: number, userId: UserId): Promise<RoomModel> => {
     const latest = await roomsRepository.findLatest();
 
     assert(latest, 'クリックできてるからRoomがないわけない');
 
-    const newBoard = boardUseCase.clickBoard({ x, y }, userId, latest.board);
+    const newBoard = boardUseCase.clickBoard(
+      { x, y },
+      userId,
+      latest.board,
+      latest.turn,
+      latest.passCount
+    );
+    console.log(newBoard.exTurn, newBoard.exPassCount);
 
-    const newRoom: RoomModel = { ...latest, status: 'playing', board: newBoard };
+    const newRoom: RoomModel = {
+      ...latest,
+      status: 'playing',
+      board: newBoard.exBoard,
+      turn: newBoard.exTurn,
+      passCount: newBoard.exPassCount,
+    };
 
     await roomsRepository.save(newRoom);
 

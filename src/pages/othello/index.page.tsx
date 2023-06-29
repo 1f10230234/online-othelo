@@ -34,11 +34,9 @@ const styleDicts = [
 const Home = () => {
   const [user] = useAtom(userAtom);
   const [board, setBoard] = useState<number[][]>();
-  const [around, setAround] = useState<{
-    exCount: number[];
-    exTurn: number;
-    exPassCount: number;
-  } | null>();
+  const [count, setCount] = useState<number[] | null>();
+  const [turn, setTurn] = useState(1);
+  const [pass, setPass] = useState(0);
   const fetchBoard = async () => {
     const res1 = await apiClient.rooms.$get().catch(returnNull);
     if (res1 === null) {
@@ -46,8 +44,10 @@ const Home = () => {
       setBoard(newRoom.board);
     } else {
       setBoard(res1.board);
+      setTurn(res1.turn);
+      setPass(res1.passCount);
       const res2 = await apiClient.rooms.board.$get().catch(returnNull);
-      setAround(res2);
+      setCount(res2);
     }
   };
   const clickCell = async (x: number, y: number) => {
@@ -80,13 +80,11 @@ const Home = () => {
             ))
           )}
         </div>
-        {around && (
+        {count && (
           <>
-            <h1>{`${turns[around.exTurn]}`}</h1>
-            <h1>{`白：${around.exCount[0]}個 / 黒：${around.exCount[1]}個`}</h1>
-            {(around.exTurn - 3) * around.exPassCount !== 0 && (
-              <h1>{`${turns[3 - around.exTurn]}が${around.exPassCount}回パスされました`}</h1>
-            )}
+            <h1>{`${turns[turn]}`}</h1>
+            <h1>{`白：${count[0]}個 / 黒：${count[1]}個`}</h1>
+            {(turn - 3) * pass !== 0 && <h1>{`${turns[3 - turn]}が${pass}回パスされました`}</h1>}
           </>
         )}
         {/* <div className={styles.button} onClick={() => click}>

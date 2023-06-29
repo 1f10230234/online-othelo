@@ -3,47 +3,6 @@ import { userColorUseCase } from './userColorUsecase';
 
 export type BoardArray = number[][];
 export type Position = { x: number; y: number };
-// const board: BoardArray = [
-//   // [0, 0, 0, 0, 0, 0, 0, 0],
-//   // [0, 0, 0, 0, 0, 0, 0, 0],
-//   // [0, 0, 0, 0, 3, 0, 0, 0],
-//   // [0, 0, 0, 1, 2, 3, 0, 0],
-//   // [0, 0, 3, 2, 1, 0, 0, 0],
-//   // [0, 0, 0, 3, 0, 0, 0, 0],
-//   // [0, 0, 0, 0, 0, 0, 0, 0],
-//   // [0, 0, 0, 0, 0, 0, 0, 0],
-//   //
-//   [0, 0, 0, 0, 0, 0, 0, 0],
-//   [0, 0, 0, 0, 0, 0, 0, 0],
-//   [0, 0, 0, 0, 0, 0, 0, 0],
-//   [0, 0, 0, 0, 0, 0, 0, 0],
-//   [0, 0, 0, 0, 0, 0, 0, 0],
-//   [3, 3, 0, 0, 0, 0, 3, 3],
-//   [2, 2, 0, 0, 0, 0, 2, 2],
-//   [1, 1, 0, 0, 0, 0, 1, 1],
-//   //
-//   // [0, 0, 0, 0, 0, 0, 0, 0],
-//   // [0, 1, 1, 1, 1, 1, 0, 0],
-//   // [0, 1, 2, 2, 2, 1, 0, 0],
-//   // [0, 1, 2, 0, 2, 1, 0, 0],
-//   // [0, 1, 2, 2, 2, 1, 0, 0],
-//   // [0, 1, 1, 1, 1, 1, 0, 0],
-//   // [0, 0, 0, 0, 0, 0, 0, 0],
-//   // [0, 0, 0, 0, 0, 0, 0, 0],
-//   //
-//   // [1, 1, 1, 1, 1, 1, 1, 0],
-//   // [1, 2, 2, 2, 2, 2, 1, 0],
-//   // [1, 2, 2, 2, 2, 2, 1, 0],
-//   // [1, 2, 2, 0, 2, 2, 1, 0],
-//   // [1, 2, 2, 2, 2, 2, 1, 0],
-//   // [1, 2, 2, 2, 2, 2, 1, 0],
-//   // [1, 1, 1, 1, 1, 1, 1, 0],
-//   // [0, 0, 0, 0, 0, 0, 0, 0],
-// ];
-let turn = 1;
-let changeTurnColor = 2;
-let passCount = 0;
-const count = [2, 2];
 const dir: { y: -1 | 0 | 1; x: -1 | 0 | 1 }[] = [
   { y: -1, x: 1 },
   { y: -1, x: 0 },
@@ -58,6 +17,7 @@ const num0or_1 = (dir: { arr: number[]; y: number; x: number }) =>
   Math.ceil(Math.max(dir.y + 0.5 * dir.x, 0) / 2) - 1;
 //ANCHOR - changeBoard
 const changeBoard = (y: number, x: number, turnColor: number, type: 0 | 1, board: BoardArray) => {
+  let changeTurnColor = 3 - turnColor;
   const dirs1: { arr: number[]; y: number; x: number }[] = dir.map((d) => {
     const arr1 = board //クリックしたところを起点に長方形にboardを切り取る
       .map((row) =>
@@ -123,44 +83,55 @@ const changeBoard = (y: number, x: number, turnColor: number, type: 0 | 1, board
     dir.arr.forEach((d, n) => {
       board[y + (n + 1) * dir.y * type][x + (n + 1) * dir.x * type] =
         turnColor * type - 3 * (type - 1);
-      changeTurnColor = turnColor * type - (3 - turn) * (type - 1);
+      changeTurnColor = turnColor * type - (3 - turnColor) * (type - 1);
     });
   });
   const controlsTurn = Math.abs(Math.abs(turnColor - changeTurnColor) - 1);
   board[y][x] += turnColor * controlsTurn * type;
+  return changeTurnColor;
 };
 //ANCHOR - changeBoard3
-const changeBoard3 = (board: BoardArray) => {
+const changeBoard3 = (board: BoardArray, inTurn: number) => {
   board.forEach((row, y) => {
     row.forEach((color, x) => {
-      changeBoard(y, x, turn, 0, board);
+      changeBoard(y, x, inTurn, 0, board);
     });
   });
 };
+//ANCHOR - turn
+
 const pass = (board: number[][]) => Math.min(1, board.flat().filter((n) => n === 3).length); //pass=>0
 //ANCHOR -  boardRepository
 export const boardUseCase = {
-  getAround: (board: BoardArray): { exCount: number[]; exTurn: number; exPassCount: number } => {
+  getCount: (board: BoardArray): number[] => {
     //ANCHOR - getBoard
-    count[0] = board.flat().filter((n) => n === 2).length;
-    count[1] = board.flat().filter((n) => n === 1).length;
-
-    return { exCount: count, exTurn: turn, exPassCount: passCount };
+    const count = [
+      board.flat().filter((n) => n === 2).length,
+      board.flat().filter((n) => n === 1).length,
+    ];
+    return count;
   },
-  clickBoard: (params: Position, userId: UserId, board: BoardArray): BoardArray => {
+  clickBoard: (
+    params: Position,
+    userId: UserId,
+    inBoard: BoardArray,
+    inTurn: number,
+    inPassCount: number
+  ): { exBoard: BoardArray; exTurn: number; exPassCount: number } => {
     //ANCHOR - clickBoard
+    let turn = inTurn;
+    let passCount = inPassCount;
+    const board = inBoard;
     if (turn === userColorUseCase.getUserColor(userId)) {
-      changeTurnColor = 3 - turn;
       board.forEach((row, y) => row.forEach((color, x) => (board[y][x] = color % 3)));
-      changeBoard(params.y, params.x, turn, 1, board);
-      turn = 3 - changeTurnColor;
+      turn = 3 - changeBoard(params.y, params.x, turn, 1, board);
     }
     //test
-    changeBoard3(board);
+    changeBoard3(board, turn);
     turn = turn * pass(board) - (3 - turn) * (pass(board) - 1); //pass
     passCount = -(passCount + 1) * (pass(board) - 1);
-    changeBoard3(board);
+    changeBoard3(board, turn);
     turn = turn * pass(board) - 3 * (pass(board) - 1); //end
-    return board;
+    return { exBoard: board, exTurn: turn, exPassCount: passCount };
   },
 };

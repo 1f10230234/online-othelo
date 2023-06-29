@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Room" ALTER COLUMN "passCount" DROP NOT NULL,
+ALTER COLUMN "turn" DROP NOT NULL;

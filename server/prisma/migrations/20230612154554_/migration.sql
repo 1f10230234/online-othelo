@@ -20,3 +20,5 @@ CREATE TABLE "UserOnRoom" (
 
 -- AddForeignKey
 ALTER TABLE "UserOnRoom" ADD CONSTRAINT "UserOnRoom_roomId_fkey" FOREIGN KEY ("roomId") REFERENCES "Room"("roomId") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+

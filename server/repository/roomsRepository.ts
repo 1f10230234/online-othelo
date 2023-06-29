@@ -7,6 +7,8 @@ import { z } from 'zod';
 const toRoomModel = (prismaRoom: Room): RoomModel => ({
   id: roomIdParser.parse(prismaRoom.roomId),
   board: z.array(z.array(z.number())).parse(prismaRoom.board),
+  turn: prismaRoom.turn,
+  passCount: prismaRoom.passCount,
   status: z.enum(['waiting', 'playing', 'ended']).parse(prismaRoom.status),
   created: prismaRoom.createdAt.getTime(),
 });
@@ -15,10 +17,17 @@ export const roomsRepository = {
   save: async (room: RoomModel) => {
     await prismaClient.room.upsert({
       where: { roomId: room.id },
-      update: { status: room.status, board: room.board },
+      update: {
+        status: room.status,
+        board: room.board,
+        turn: room.turn,
+        passCount: room.passCount,
+      },
       create: {
         roomId: room.id,
         board: room.board,
+        turn: room.turn,
+        passCount: room.passCount,
         status: room.status,
         createdAt: new Date(room.created),
       },

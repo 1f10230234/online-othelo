@@ -17,6 +17,8 @@ model Task {
 model Room {
   roomId      String       @id
   board       Json
+  turn        Int?
+  passCount   Int?
   status      String
   createdAt   DateTime
   userOnrooms UserOnRoom[]
@@ -31,4 +33,3 @@ model UserOnRoom {
 
   @@id([fireBaseId, roomId])
 }
-
