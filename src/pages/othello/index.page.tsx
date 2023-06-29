@@ -1,3 +1,4 @@
+import assert from 'assert';
 import { useAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 import { Loading } from 'src/components/Loading/Loading';
@@ -34,19 +35,23 @@ const styleDicts = [
 const Home = () => {
   const [user] = useAtom(userAtom);
   const [board, setBoard] = useState<number[][]>();
-  const [count, setCount] = useState<number[] | null>();
+  const [count, setCount] = useState([2, 2]);
   const [turn, setTurn] = useState(1);
   const [pass, setPass] = useState(0);
   const fetchBoard = async () => {
     const res1 = await apiClient.rooms.$get().catch(returnNull);
     if (res1 === null) {
-      const newRoom = await apiClient.rooms.$post();
+      const newRoom = await apiClient.rooms.$post();//最初の一回
       setBoard(newRoom.board);
     } else {
+      assert(res1.board);
+      assert(res1.turn);
+      assert(res1.passCount);
       setBoard(res1.board);
       setTurn(res1.turn);
       setPass(res1.passCount);
       const res2 = await apiClient.rooms.board.$get().catch(returnNull);
+      assert(res2);
       setCount(res2);
     }
   };
@@ -65,7 +70,7 @@ const Home = () => {
   if (!user || !board) {
     return <Loading visible />;
   }
-
+  const isNull = () => count && turn && pass;
   return (
     <>
       <BasicHeader user={user} />
@@ -80,7 +85,7 @@ const Home = () => {
             ))
           )}
         </div>
-        {count && (
+        {isNull() && (
           <>
             <h1>{`${turns[turn]}`}</h1>
             <h1>{`白：${count[0]}個 / 黒：${count[1]}個`}</h1>

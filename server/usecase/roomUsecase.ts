@@ -45,6 +45,8 @@ export const roomUsecase = {
     const latest = await roomsRepository.findLatest();
 
     assert(latest, 'クリックできてるからRoomがないわけない');
+    assert(latest.turn, 'クリックできてるからRoomがないわけない');
+    assert(latest.passCount, 'クリックできてるからRoomがないわけない');
 
     const newBoard = boardUseCase.clickBoard(
       { x, y },
