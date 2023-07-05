@@ -57,7 +57,7 @@ const Home = () => {
     fetchBoard();
   };
   useEffect(() => {
-    const cancelId = setInterval(fetchBoard, 500);
+    const cancelId = setInterval(fetchBoard, 2000);
     return () => {
       clearInterval(cancelId);
     };

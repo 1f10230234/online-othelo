@@ -2,6 +2,7 @@ import type { UserId } from '$/commonTypesWithClient/branded';
 import type { RoomModel } from '$/commonTypesWithClient/models';
 import { roomsRepository } from '$/repository/roomsRepository';
 import { roomIdParser } from '$/service/idParsers';
+import { returnDefaultNumber } from '$/utils/returnDefault';
 import assert from 'assert';
 import { randomUUID } from 'crypto';
 import { boardUseCase } from './boardUsecase';
@@ -29,7 +30,7 @@ export const roomUsecase = {
     };
 
     await roomsRepository.save(newRoom);
-
+    console.log('/root/online-othello/server/usecase/roomUsecase.ts/create');
     return newRoom;
   },
   getCount: async (): Promise<number[]> => {
@@ -38,24 +39,23 @@ export const roomUsecase = {
     assert(latest, 'クリックできてるからRoomがないわけない');
 
     const newCount = boardUseCase.getCount(latest.board);
-
+    console.log('/root/online-othello/server/usecase/roomUsecase.ts/getCount');
     return newCount;
   },
   clickBoard: async (x: number, y: number, userId: UserId): Promise<RoomModel> => {
+    console.log('aaa'); //ここまではきてる
     const latest = await roomsRepository.findLatest();
-
+    console.log('iii'); //ここまではきてる
     assert(latest, 'クリックできてるからRoomがないわけない');
-    assert(latest.turn, 'クリックできてるからRoomがないわけない');
-    assert(latest.passCount, 'クリックできてるからRoomがないわけない');
-
+    console.log('uuu'); //ここからダメ
     const newBoard = boardUseCase.clickBoard(
       { x, y },
       userId,
       latest.board,
-      latest.turn,
-      latest.passCount
+      returnDefaultNumber(1, latest.turn),
+      returnDefaultNumber(0, latest.passCount)
     );
-    console.log(newBoard.turn, newBoard.passCount);
+    console.log('/root/online-othello/server/usecase/roomUsecase.ts/crickBoard');
 
     const newRoom: RoomModel = {
       ...latest,
