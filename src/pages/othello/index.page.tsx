@@ -87,9 +87,6 @@ const Home = () => {
             {(turn - 3) * pass !== 0 && <h1>{`${turns[3 - turn]}が${pass}回パスされました`}</h1>}
           </>
         )}
-        {/* <div className={styles.button} onClick={() => click}>
-      <button>リセット</button>
-    </div> */}
       </div>
     </>
   );
