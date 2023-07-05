@@ -84,7 +84,6 @@ const Home = () => {
           <>
             <h1>{`${turns[turn]}`}</h1>
             <h1>{`白：${count[0]}個 / 黒：${count[1]}個`}</h1>
-            {(turn - 3) * pass !== 0 && <h1>{`${turns[3 - turn]}が${pass}回パスされました`}</h1>}
           </>
         )}
       </div>
