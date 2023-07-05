@@ -114,17 +114,18 @@ export const boardUseCase = {
   clickBoard: (
     params: Position,
     userId: UserId,
-    inBoard: BoardArray,
+    board: BoardArray,
     inTurn: number,
     inPassCount: number
-  ): { exBoard: BoardArray; exTurn: number; exPassCount: number } => {
+  ): { board: BoardArray; turn: number; passCount: number } => {
     //ANCHOR - clickBoard
     let turn = inTurn;
     let passCount = inPassCount;
-    const board = inBoard;
+    console.log(1);
     if (turn === userColorUseCase.getUserColor(userId)) {
       board.forEach((row, y) => row.forEach((color, x) => (board[y][x] = color % 3)));
       turn = 3 - changeBoard(params.y, params.x, turn, 1, board);
+      console.table(board);
     }
     //test
     changeBoard3(board, turn);
@@ -132,6 +133,6 @@ export const boardUseCase = {
     passCount = -(passCount + 1) * (pass(board) - 1);
     changeBoard3(board, turn);
     turn = turn * pass(board) - 3 * (pass(board) - 1); //end
-    return { exBoard: board, exTurn: turn, exPassCount: passCount };
+    return { board, turn, passCount };
   },
 };

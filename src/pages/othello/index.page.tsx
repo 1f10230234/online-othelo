@@ -1,4 +1,3 @@
-import assert from 'assert';
 import { useAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 import { Loading } from 'src/components/Loading/Loading';
@@ -35,28 +34,24 @@ const styleDicts = [
 const Home = () => {
   const [user] = useAtom(userAtom);
   const [board, setBoard] = useState<number[][]>();
-  const [count, setCount] = useState([2, 2]);
-  const [turn, setTurn] = useState(1);
-  const [pass, setPass] = useState(0);
+  const [count, setCount] = useState<number[] | null>([2, 2]);
+  const [turn, setTurn] = useState<number | null>(1);
+  const [pass, setPass] = useState<number | null>(0);
   const fetchBoard = async () => {
     const res1 = await apiClient.rooms.$get().catch(returnNull);
     if (res1 === null) {
       const newRoom = await apiClient.rooms.$post(); //最初の一回
       setBoard(newRoom.board);
     } else {
-      assert(res1.board);
-      assert(res1.turn);
-      assert(res1.passCount);
       setBoard(res1.board);
       setTurn(res1.turn);
       setPass(res1.passCount);
-      const res2 = await apiClient.rooms.board.$get().catch(returnNull);
-      assert(res2);
+      const res2 = await apiClient.rooms.board.$get();
       setCount(res2);
     }
   };
   const clickCell = async (x: number, y: number) => {
-    console.log(apiClient);
+    console.log(111);
     await apiClient.rooms.board.$post({ body: { x, y } });
     await fetchBoard();
   };
@@ -70,7 +65,7 @@ const Home = () => {
   if (!user || !board) {
     return <Loading visible />;
   }
-  const isNull = () => count && turn && pass;
+  const isNull = (): boolean => [count, turn, pass].some((i) => i === null);
   return (
     <>
       <BasicHeader user={user} />
@@ -89,9 +84,10 @@ const Home = () => {
           <>
             <h1>{`${turns[turn]}`}</h1>
             <h1>{`白：${count[0]}個 / 黒：${count[1]}個`}</h1>
-            {(turn - 3) * pass !== 0 && <h1>{`${turns[3 - turn]}が${pass}回パスされました`}</h1>}
           </>
         )}
+        {(turn - 3) * pass !== 0 && <h1>{`${turns[3 - turn]}が${pass}回パスされました`}</h1>}
+
         {/* <div className={styles.button} onClick={() => click}>
       <button>リセット</button>
     </div> */}

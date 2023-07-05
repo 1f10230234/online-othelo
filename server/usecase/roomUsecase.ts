@@ -55,14 +55,14 @@ export const roomUsecase = {
       latest.turn,
       latest.passCount
     );
-    console.log(newBoard.exTurn, newBoard.exPassCount);
+    console.log(newBoard.turn, newBoard.passCount);
 
     const newRoom: RoomModel = {
       ...latest,
       status: 'playing',
-      board: newBoard.exBoard,
-      turn: newBoard.exTurn,
-      passCount: newBoard.exPassCount,
+      board: newBoard.board,
+      turn: newBoard.turn,
+      passCount: newBoard.passCount,
     };
 
     await roomsRepository.save(newRoom);
