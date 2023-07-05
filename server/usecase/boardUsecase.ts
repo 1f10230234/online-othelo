@@ -121,11 +121,9 @@ export const boardUseCase = {
     //ANCHOR - clickBoard
     let turn = inTurn;
     let passCount = inPassCount;
-    console.log(1);
     if (turn === userColorUseCase.getUserColor(userId)) {
       board.forEach((row, y) => row.forEach((color, x) => (board[y][x] = color % 3)));
       turn = 3 - changeBoard(params.y, params.x, turn, 1, board);
-      console.table(board);
     }
     //test
     changeBoard3(board, turn);

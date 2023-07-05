@@ -30,7 +30,6 @@ export const roomUsecase = {
     };
 
     await roomsRepository.save(newRoom);
-    console.log('/root/online-othello/server/usecase/roomUsecase.ts/create');
     return newRoom;
   },
   getCount: async (): Promise<number[]> => {
@@ -39,15 +38,11 @@ export const roomUsecase = {
     assert(latest, 'クリックできてるからRoomがないわけない');
 
     const newCount = boardUseCase.getCount(latest.board);
-    console.log('/root/online-othello/server/usecase/roomUsecase.ts/getCount');
     return newCount;
   },
   clickBoard: async (x: number, y: number, userId: UserId): Promise<RoomModel> => {
-    console.log('aaa'); //ここまではきてる
     const latest = await roomsRepository.findLatest();
-    console.log('iii'); //ここまではきてる
     assert(latest, 'クリックできてるからRoomがないわけない');
-    console.log('uuu'); //ここからダメ
     const newBoard = boardUseCase.clickBoard(
       { x, y },
       userId,
@@ -55,7 +50,6 @@ export const roomUsecase = {
       returnDefaultNumber(1, latest.turn),
       returnDefaultNumber(0, latest.passCount)
     );
-    console.log('/root/online-othello/server/usecase/roomUsecase.ts/crickBoard');
 
     const newRoom: RoomModel = {
       ...latest,
