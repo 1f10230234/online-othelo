@@ -54,7 +54,7 @@ const Home = () => {
   const clickCell = async (x: number, y: number) => {
     console.log(111);
     await apiClient.rooms.board.$post({ body: { x, y } });
-    await fetchBoard();
+    fetchBoard();
   };
   useEffect(() => {
     const cancelId = setInterval(fetchBoard, 500);
