@@ -7,8 +7,8 @@ import { z } from 'zod';
 const toRoomModel = (prismaRoom: Room): RoomModel => ({
   id: roomIdParser.parse(prismaRoom.roomId),
   board: z.array(z.array(z.number())).parse(prismaRoom.board),
-  turn: prismaRoom.turn,
-  passCount: prismaRoom.passCount,
+  turn: z.number().parse(prismaRoom.turn),
+  passCount: z.number().parse(prismaRoom.passCount),
   status: z.enum(['waiting', 'playing', 'ended']).parse(prismaRoom.status),
   created: prismaRoom.createdAt.getTime(),
 });
