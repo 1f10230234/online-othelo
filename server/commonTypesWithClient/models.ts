@@ -1,3 +1,4 @@
+import type { Room } from '@prisma/client';
 import type { RoomId, TaskId, UserId } from './branded';
 
 export type UserModel = {
@@ -21,4 +22,12 @@ export type RoomModel = {
   passCount: number | null;
   status: 'waiting' | 'playing' | 'ended';
   created: number;
+};
+
+export type userOnRoomModel = {
+  fireBaseId: string;
+  in: number;
+  out: number | null;
+  Room: Room;
+  roomId: string;
 };

@@ -37,6 +37,7 @@ export const roomsRepository = {
     const room = await prismaClient.room.findFirst({
       orderBy: { createdAt: 'desc' },
     });
+    console.log('turn', room?.turn, 'passCount', room?.passCount);
     return room && toRoomModel(room);
   },
 };

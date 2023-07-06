@@ -29,6 +29,9 @@
 
 .stone {
   display: flex;
+  background-color: #f80;
+  width: 90%;
+  height: 90%;
   border-radius: 50%;
 }
 
